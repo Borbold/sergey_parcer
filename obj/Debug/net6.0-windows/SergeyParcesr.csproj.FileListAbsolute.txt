@@ -1,0 +1,16 @@
+D:\VS_Code\SergeyParcesr\bin\Debug\net6.0-windows\SergeyParcesr.exe
+D:\VS_Code\SergeyParcesr\bin\Debug\net6.0-windows\SergeyParcesr.deps.json
+D:\VS_Code\SergeyParcesr\bin\Debug\net6.0-windows\SergeyParcesr.runtimeconfig.json
+D:\VS_Code\SergeyParcesr\bin\Debug\net6.0-windows\SergeyParcesr.dll
+D:\VS_Code\SergeyParcesr\bin\Debug\net6.0-windows\SergeyParcesr.pdb
+D:\VS_Code\SergeyParcesr\obj\Debug\net6.0-windows\SergeyParcesr.csproj.GenerateResource.cache
+D:\VS_Code\SergeyParcesr\obj\Debug\net6.0-windows\SergeyParcesr.GeneratedMSBuildEditorConfig.editorconfig
+D:\VS_Code\SergeyParcesr\obj\Debug\net6.0-windows\SergeyParcesr.AssemblyInfoInputs.cache
+D:\VS_Code\SergeyParcesr\obj\Debug\net6.0-windows\SergeyParcesr.AssemblyInfo.cs
+D:\VS_Code\SergeyParcesr\obj\Debug\net6.0-windows\SergeyParcesr.csproj.CoreCompileInputs.cache
+D:\VS_Code\SergeyParcesr\obj\Debug\net6.0-windows\SergeyParcesr.dll
+D:\VS_Code\SergeyParcesr\obj\Debug\net6.0-windows\refint\SergeyParcesr.dll
+D:\VS_Code\SergeyParcesr\obj\Debug\net6.0-windows\SergeyParcesr.pdb
+D:\VS_Code\SergeyParcesr\obj\Debug\net6.0-windows\SergeyParcesr.genruntimeconfig.cache
+D:\VS_Code\SergeyParcesr\obj\Debug\net6.0-windows\ref\SergeyParcesr.dll
+D:\VS_Code\SergeyParcesr\obj\Debug\net6.0-windows\SergeyParcesr.FormParser.resources
