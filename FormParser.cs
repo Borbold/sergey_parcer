@@ -15,9 +15,10 @@ namespace SergeyParcesr {
             if(dialog.ShowDialog() == DialogResult.OK) {
                 string[] pathToFile = dialog.FileName.Split('\\');
                 ParsingFile.Text = pathToFile[^1];
-                FH = new(dialog.FileName, RichTextOutput, OutputDataGrid,
-                    FilterComBoxSenderName, FilterComBoxReceiverName,
-                    FilterComBoxAttributeName, FilterComBoxCodeName);
+                FH ??= new(dialog.FileName, RichTextOutput, OutputDataGrid,
+                        FilterComBoxSenderName, FilterComBoxReceiverName,
+                        FilterComBoxAttributeName, FilterComBoxCodeName,
+                        FilterGridView);
                 ReadParserFile.Enabled = true;
                 FilterButton.Enabled = true;
                 FilterComBoxSenderName.Enabled = true;
@@ -30,6 +31,8 @@ namespace SergeyParcesr {
         private void ReadParserFile_Click(object sender, EventArgs e) {
             RichTextOutput.Clear();
             FH.ReadFileHandling();
+            OutputDataGrid.Visible = true;
+            FilterGridView.Visible = false;
         }
 
         private void StopButton_Click(object sender, EventArgs e) {
@@ -43,6 +46,9 @@ namespace SergeyParcesr {
 
         private void FilterButton_Click(object sender, EventArgs e) {
             RichTextOutput.Clear();
+            OutputDataGrid.Visible = false;
+            FilterGridView.Visible = true;
+            FilterGridView.Rows.Clear();
             FH.FilterDataGrid(
                 FilterComBoxSenderName.Text, FilterComBoxReceiverName.Text,
                 FilterComBoxAttributeName.Text, FilterComBoxCodeName.Text

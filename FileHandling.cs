@@ -1,17 +1,21 @@
 ﻿using System;
+using System.Data;
 using System.Data.SqlTypes;
+using System.Linq;
 
 namespace SergeyParcesr {
     internal class FileHandling {
         private readonly StringParsing SP = new();
         private CancellationTokenSource readFileSource, readFilterSource;
+        private DataTable dataTable;
 
         private readonly string _path;
         private readonly RichTextBox _outputTextBox;
-        private readonly DataGridView _gridRows;
+        private readonly DataGridView _gridRows, _filterGridRows;
         private readonly ComboBox _filterSender, _filterReceiver, _filterAttribute, _filterCode;
         public FileHandling(string path, RichTextBox outputTextBox, DataGridView gridRows,
-                ComboBox filterSender, ComboBox filterReceiver, ComboBox filterAttribute, ComboBox filterCode) {
+                ComboBox filterSender, ComboBox filterReceiver, ComboBox filterAttribute, ComboBox filterCode,
+                DataGridView filterGridRows) {
             _path = path;
             _outputTextBox = outputTextBox;
             _gridRows = gridRows;
@@ -21,6 +25,20 @@ namespace SergeyParcesr {
             _filterReceiver = filterReceiver;
             _filterAttribute = filterAttribute;
             _filterCode = filterCode;
+            _filterGridRows = filterGridRows;
+            dataTable = new();
+            CreateDataBase();
+        }
+
+        private void CreateDataBase() {
+            dataTable.Columns.Add("Номер", typeof(string));
+            dataTable.Columns.Add("Тип", typeof(string));
+            dataTable.Columns.Add("C/D", typeof(string));
+            dataTable.Columns.Add("Отправитель", typeof(string));
+            dataTable.Columns.Add("Приниматель", typeof(string));
+            dataTable.Columns.Add("Аттрибут", typeof(string));
+            dataTable.Columns.Add("Код", typeof(string));
+            dataTable.Columns.Add("Данные", typeof(string));
         }
 
         private bool ReadString(char rS, ref string result) {
@@ -84,8 +102,8 @@ namespace SergeyParcesr {
             CancellationToken readFilterToken5 = readFilterSource.Token;
             TaskFactory? readFilterFac5 = new(readFilterToken5);
             _ = readFilterFac5.StartNew(() => {
-                Thread.Sleep(5000);
-                firstStart = firstEnd + _gridRows.RowCount;
+                Thread.Sleep(7000);
+                firstStart = _gridRows.RowCount - 1;
                 FilterOutDataGrid(sender, receiver, attribute, code, firstEnd, firstStart);
                 _outputTextBox.Invoke(new Action(() => {
                     _outputTextBox.AppendText($"Finish.");
@@ -98,11 +116,12 @@ namespace SergeyParcesr {
         public void ReadFileHandling() {
             if(_path == null) return;
             readFileSource = new();
-            int firstEnd = 1000000, firstStart = 0;
 
             FileStream fileStremRead = File.OpenRead(_path);
+            long lenghtFile = fileStremRead.Length;
+            long firstEnd = lenghtFile / 6, firstStart = 0;
             BinaryReader readerFile = new(fileStremRead);
-            char[] allChars = readerFile.ReadChars((int)fileStremRead.Length);
+            char[] allChars = readerFile.ReadChars((int)lenghtFile);
             readerFile.Close();
             fileStremRead.Close();
 
@@ -119,7 +138,7 @@ namespace SergeyParcesr {
             _ = readFileFac1.StartNew(() => {
                 Thread.Sleep(1000);
                 firstEnd++;
-                firstStart = firstEnd * 2;
+                firstStart = firstEnd + lenghtFile / 6;
                 while(firstStart < allChars.Length && allChars[firstStart] != '\n') firstStart++;
                 ReadFileFactory(allChars, firstEnd, firstStart);
                 readFileFac1 = null;
@@ -130,7 +149,7 @@ namespace SergeyParcesr {
             _ = readFileFac2.StartNew(() => {
                 Thread.Sleep(2000);
                 firstStart++;
-                firstEnd = firstStart * 2;
+                firstEnd = firstStart + lenghtFile / 6;
                 while(firstEnd < allChars.Length && allChars[firstEnd] != '\n') firstEnd++;
                 ReadFileFactory(allChars, firstStart, firstEnd);
                 readFileFac2 = null;
@@ -141,7 +160,7 @@ namespace SergeyParcesr {
             _ = readFileFac3.StartNew(() => {
                 Thread.Sleep(3000);
                 firstEnd++;
-                firstStart = firstEnd * 2;
+                firstStart = firstEnd + lenghtFile / 6;
                 while(firstStart < allChars.Length && allChars[firstStart] != '\n') firstStart++;
                 ReadFileFactory(allChars, firstEnd, firstStart);
                 readFileFac3 = null;
@@ -152,7 +171,7 @@ namespace SergeyParcesr {
             _ = readFileFac4.StartNew(() => {
                 Thread.Sleep(4000);
                 firstStart++;
-                firstEnd = firstStart * 2;
+                firstEnd = firstStart + lenghtFile / 6;
                 while(firstEnd < allChars.Length && allChars[firstEnd] != '\n') firstEnd++;
                 ReadFileFactory(allChars, firstStart, firstEnd);
                 readFileFac4 = null;
@@ -163,7 +182,7 @@ namespace SergeyParcesr {
             _ = readFileFac5.StartNew(() => {
                 Thread.Sleep(5000);
                 firstEnd++;
-                firstStart = firstEnd * 2;
+                firstStart = lenghtFile;
                 while(firstStart < allChars.Length && allChars[firstStart] != '\n') firstStart++;
                 ReadFileFactory(allChars, firstEnd, firstStart);
                 _outputTextBox.Invoke(new Action(() => {
@@ -174,7 +193,7 @@ namespace SergeyParcesr {
             }, readFileToken5);
         }
 
-        private void ReadFileFactory(char[] allChars, int startIndex, int endIndex) {
+        private void ReadFileFactory(char[] allChars, long startIndex, long endIndex) {
             if(endIndex > allChars.Length) endIndex = allChars.Length;
 
             int countRows = 0;
@@ -186,6 +205,10 @@ namespace SergeyParcesr {
                     if(ReadString(allChars[startIndex], ref result)) {
                         _gridRows.Invoke(new Action(() => {
                             SP.ParsePassedString(result.Remove(result.Length - 1, 1), _gridRows.Rows);
+                            dataTable.Rows.Add(_gridRows.Rows[countRows].Cells[0].Value, _gridRows.Rows[countRows].Cells[1].Value,
+                                _gridRows.Rows[countRows].Cells[2].Value, _gridRows.Rows[countRows].Cells[3].Value,
+                                _gridRows.Rows[countRows].Cells[4].Value, _gridRows.Rows[countRows].Cells[5].Value,
+                                _gridRows.Rows[countRows].Cells[6].Value, _gridRows.Rows[countRows].Cells[7].Value);
                             if(!_filterSender.Items.Contains(_gridRows.Rows[countRows].Cells[3].Value))
                                 _filterSender.Items.Add(_gridRows.Rows[countRows].Cells[3].Value);
                             if(!_filterReceiver.Items.Contains(_gridRows.Rows[countRows].Cells[4].Value))
@@ -212,24 +235,36 @@ namespace SergeyParcesr {
             while(startIndex < endIndex) {
                 if(readFilterSource.IsCancellationRequested) { break; }
                 _gridRows.Invoke(new Action(() => {
-                    if(sender.Length > 0 &&
-                        sender != _gridRows.Rows[startIndex].Cells[3].Value.ToString()) {
-                        _gridRows.Rows[startIndex].Visible = false;
-                    } else if(receiver.Length > 0 &&
-                            receiver != _gridRows.Rows[startIndex].Cells[4].Value.ToString()) {
-                        _gridRows.Rows[startIndex].Visible = false;
-                    } else if(attribute.Length > 0 &&
-                            attribute != _gridRows.Rows[startIndex].Cells[5].Value.ToString()) {
-                        _gridRows.Rows[startIndex].Visible = false;
-                    } else if(code.Length > 0 &&
-                            code != _gridRows.Rows[startIndex].Cells[6].Value.ToString()) {
-                        _gridRows.Rows[startIndex].Visible = false;
-                    } else if(!_gridRows.Rows[startIndex].Visible) {
-                        _gridRows.Rows[startIndex].Visible = true;
-                    }
+                    if(CheckRow(sender, receiver, attribute, code, startIndex))
+                        _filterGridRows.Rows.Add(dataTable.Rows[startIndex].ItemArray);
                 }));
                 startIndex++;
             }
+        }
+
+        private bool CheckRow(string sender, string receiver, string attribute, string code,
+                int index) {
+            if(sender.Length == 0 && receiver.Length == 0 &&
+                attribute.Length == 0 && code.Length == 0) return false;
+            bool check = true;
+
+            string[] allCheck = new string[4] { sender, receiver, attribute, code };
+            List<bool> boolCheck = new();
+            for(int i = 0; i < 4; i++) {
+                if(allCheck[i].Length > 0)
+                    if(allCheck[i] == _gridRows.Rows[index].Cells[i + 3].Value.ToString())
+                        boolCheck.Add(true);
+                    else
+                        boolCheck.Add(false);
+            }
+            for(int i = 0; i < boolCheck.Count; i++) {
+                if(!boolCheck[i]) {
+                    check = false;
+                    break;
+                }
+            }
+
+            return check;
         }
     }
 }
